@@ -1,16 +1,8 @@
 import concurrent.futures
 import multiprocessing
 import numpy as np
-import urllib.request
 import streamlit as st
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-import time
-import re
 import sqlite3
-import yt_dlp
 import requests
 import isodate
 import concurrent.futures
@@ -21,8 +13,6 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 import streamlit_shadcn_ui as ui
-import urllib
-import json 
 from datetime import datetime
 import zipfile
 from lxml import etree
