@@ -787,6 +787,7 @@ if __name__=="__main__":
         def get_sentiment(text):
             return TextBlob(text).sentiment.polarity  # Range: -1 (negative) to 1 (positive)
         st.subheader(f'Average Sentiment of Comments per {view_mode}')
+        st.caption("Negative Sentiment indicate meaner comments, positive indicates not as mean comments")
         df['sentiment'] = df['clean_text'].apply(get_sentiment)
         if view_mode == "Month":
             df['month'] = df['Date'].dt.to_period('M').dt.to_timestamp()  # first day of each month
