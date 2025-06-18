@@ -17,7 +17,7 @@ from datetime import datetime
 import zipfile
 from lxml import etree
 import io
-
+from git import Repo
 
 # set in .sreamlit/secrets.toml
 API_KEY=st.secrets["ytv3_key"]
@@ -148,6 +148,13 @@ def get_video_durations(video_ids: List[str]) -> Tuple[dict, int]:
     with concurrent.futures.ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()-1) as executor:
         executor.map(fetch_videos, video_id_chunks)
 
+
+    repo = Repo('.')  # if repo is CWD just do '.'
+
+    repo.index.add(['ytAnalysis,db'])
+    repo.index.commit('System Database Update')
+    origin = repo.remote('origin')
+    origin.push()
     return durations, failed_requests
  # Print first 10 results
 
