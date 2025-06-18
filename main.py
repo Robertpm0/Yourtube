@@ -151,7 +151,7 @@ def get_video_durations(video_ids: List[str]) -> Tuple[dict, int]:
 
     repo = Repo('.')  # if repo is CWD just do '.'
 
-    repo.index.add(['ytAnalysis,db'])
+    repo.index.add(['ytAnalysis.db'])
     repo.index.commit('System Database Update')
     origin = repo.remote('origin')
     origin.push()
