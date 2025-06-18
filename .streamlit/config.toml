@@ -2,4 +2,4 @@
 showErrorDetails = "none"
 
 [server]
-maxUploadSize=5000
+maxUploadSize=3000
