@@ -339,10 +339,11 @@ if __name__=="__main__":
     st.markdown("---")
     st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
+    doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
+
     uploaded_file = st.file_uploader("Upload your takeout .zip file", type=["zip"])
     # st.session_state["f"]=uploaded_file
     # doExperimental=st.checkbox("Get Watchtime (Experimental)")
-    doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
     if st.button("Vizualize",icon='👀'):
         st.toast("Analyzing Watch History")
         # Read the uploaded file into a BytesIO buffer
