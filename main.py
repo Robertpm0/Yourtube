@@ -29,7 +29,7 @@ OPENROUTER_API_KEY = st.secrets.get("OPENROUTER_API_KEY", "")# or os.getenv("OPE
 
 
 # SQLite Database Configuration
-DB_PATH = "YTAnalysis.db"  #used to store duration for a given videokey
+DB_PATH = "ytAnalysis.db"  #used to store duration for a given videokey
 
 # converts seconds integer to days,hours,minutes,seconds and total in hours
 def convert_seconds(seconds):
