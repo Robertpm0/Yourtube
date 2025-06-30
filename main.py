@@ -152,12 +152,12 @@ def get_video_durations(video_ids: List[str]) -> Tuple[dict, int]:
         executor.map(fetch_videos, video_id_chunks)
 
 
-    repo = Repo('.')  # if repo is CWD just do '.'
+    # repo = Repo('.')  # if repo is CWD just do '.'
 
-    repo.index.add(['YTAnalysis.db'])
-    repo.index.commit('System Database Update')
-    origin = repo.remote('origin')
-    origin.push()
+    # repo.index.add(['YTAnalysis.db'])
+    # repo.index.commit('System Database Update')
+    # origin = repo.remote('origin')
+    # origin.push()
     return durations, failed_requests
  # Print first 10 results
 

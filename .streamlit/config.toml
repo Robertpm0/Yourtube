@@ -1,5 +1,3 @@
-[client]
-showErrorDetails = "none"
 
 [server]
 maxUploadSize=3000
