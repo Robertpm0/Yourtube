@@ -18,11 +18,14 @@ import zipfile
 from lxml import etree
 import io
 from git import Repo
+from langchain_experimental.agents import create_pandas_dataframe_agent
 
+from langchain.chat_models import ChatOpenAI
 # set in .sreamlit/secrets.toml
 API_KEY=st.secrets["ytv3_key"]
 YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/videos"
 
+OPENROUTER_API_KEY = st.secrets.get("OPENROUTER_API_KEY", "")# or os.getenv("OPENROUTER_API_KEY")
 
 
 # SQLite Database Configuration
@@ -151,7 +154,7 @@ def get_video_durations(video_ids: List[str]) -> Tuple[dict, int]:
 
     repo = Repo('.')  # if repo is CWD just do '.'
 
-    repo.index.add(['ytAnalysis.db'])
+    repo.index.add(['YTAnalysis.db'])
     repo.index.commit('System Database Update')
     origin = repo.remote('origin')
     origin.push()
@@ -160,7 +163,87 @@ def get_video_durations(video_ids: List[str]) -> Tuple[dict, int]:
 
 # scrapes html input file with watch history, returns collected data in structured fashion
 # pass in html file
+def parse_json_with_pd(json_content):
+
+    json_content["isPost"]=json_content["titleUrl"].str.contains("post",case=False)
+    json_content["hasChannel"]=json_content["subtitles"].str.contains("name",case=False)
+    json_content['subtitles'].fillna(' ',inplace=True)
+
+    json_content["details"].fillna(' ',inplace=True)
+    ads=[]
+    for title in json_content["details"]:
+        # print(title[0])
+        if title[0]!=' ':
+            if 'Ads' in title[0]['name']:
+                # titleName=title[0]["name"]
+                titleName=True
+                ads.append(titleName)
+
+
+            # print(titleName)
+        else:
+            titleName=False
+
+            ads.append(titleName)
+    json_content["isAd"]=ads
+
+
+
+
+    channels=[]
+    for title in json_content["subtitles"]:
+        # print(title[0])
+        if "name" in title[0]:
+            titleName=title[0]["name"]
+            # print(titleName)
+        else:
+            titleName='ad'
+
+        channels.append(titleName)
+    
+
+    titles=[]
+    for title in json_content["title"]:
+        # print(title[0])
+        if "Viewed" in title:
+            titleName=title.split("Viewed")[1]
+        elif "Watched" in title:
+            titleName=title.split("Watched")[1]
+        # print(titleName)
+        titles.append(titleName)
+    json_content["Title"]=titles
+    # json_content['Title'] = json_content['title'].apply(lambda s: s.split('Viewed')[1] if 'Viewed' in s else s.split('Watched')[1])
+    # print(json_content["Title"])
+    json_content["Channel"]=channels
+    # json_content['Channel'] = json_content['subtitles'].apply(lambda s: s.split("'name':")[0].split(' ')[0] if 'name' in s else 'ad')
+    # print(json_content["Channel"])
+    keys=[]
+    for key in json_content["titleUrl"]:
+        try:
+            videoKey = key.split("=")[1]
+
+        except:
+            try:
+                videoKey=key.split("https://www.youtube.com/post/")[0]
+
+            except:
+                print("NO KEY FOUND")
+                if key=="https://www.youtube.com/watch?v=":
+                    videoKey="Deleted"
+                # videoKey='NOKEY'
+                else:
+                    videoKey=""
+        keys.append(videoKey)
+    json_content["Key"]=keys
+
+    # multiWatch=json_content.groupby(["titleUrl"]).size().
+    # watch_counts = df.groupby(['month','isShort']).size().reset_index(name='count')
+
+    return json_content
+        # return videoDates,videoDurations,videoKeys,missedVideos,postsLiked,totalVideosWatched,titles,channels,ads,multiWatch,multiChannel,watchHistory
+
 def parse_html_with_lxml(html_content):
+        
         parser = etree.HTMLParser()
         tree = etree.fromstring(html_content, parser)
 
@@ -256,6 +339,7 @@ def parse_html_with_lxml(html_content):
                 if videoKey in videoKeys: # when someone views a vid more than once
                     # tracking number of times a channel was watched and specific videos
                     if videoKey not in multiWatch:
+                        # print("key",videoKey)
                         multiWatch[videoKey]=1
                         multiChannel[channel]=1
                     else:
@@ -305,6 +389,24 @@ def convert_to_date(datetime_str):
         # Convert to date string
         return date_obj.strftime("%Y-%m-%d")
 
+
+
+# inits the llm used for parsing watch history dataframe
+def createDocumentAgent(df):
+    llm = ChatOpenAI(
+        model="deepseek/deepseek-r1-0528-qwen3-8b:free",  # or llama-3, etc.
+        openai_api_key=OPENROUTER_API_KEY,
+        openai_api_base="https://openrouter.ai/api/v1",
+        temperature=0
+    )
+
+    agent = create_pandas_dataframe_agent(llm, df,allow_dangerous_code=True,verbose=False)
+    return agent
+
+
+
+
+
 if __name__=="__main__":
     multiprocessing.freeze_support()
     # co
@@ -326,9 +428,6 @@ if __name__=="__main__":
 
 
 
-
-
-
     c1,c2,c3=st.columns(3,gap='small')
 
     # logo image
@@ -339,13 +438,30 @@ if __name__=="__main__":
     st.markdown("---")
     st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
-    doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
 
     uploaded_file = st.file_uploader("Upload your takeout .zip file", type=["zip"])
+    doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
+
     # st.session_state["f"]=uploaded_file
     # doExperimental=st.checkbox("Get Watchtime (Experimental)")
     if st.button("Vizualize",icon='👀'):
+        st.session_state["collected"]=False
+        st.session_state["vidFrame"]=pd.DataFrame()
+        st.session_state["vidFrame2"]=pd.DataFrame()
+        st.session_state["f"]=""
+        st.session_state["comments"]=""
+        st.session_state["rep"]=""
+        st.session_state["history"]=""
+        st.session_state["durs"]=""
+        st.session_state["ads"]=""
+        st.session_state["subs"]=""
+        st.session_state["Playlists"]=""
+        st.session_state["list_names"]=""
+        st.session_state["all_lists"]=""
         st.toast("Analyzing Watch History")
+        if "chat_history" not in st.session_state:
+            st.session_state.chat_history = []
+
         # Read the uploaded file into a BytesIO buffer
         with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
             # List all files in the ZIP
@@ -354,6 +470,7 @@ if __name__=="__main__":
             # Specify the folder and the HTML file to extract
             target_folder = "Takeout/YouTube and YouTube Music/history/"
             target_html_file = "watch-history.html"  # Change as needed
+            target_html_file="watch-history.json"
             target_folder2 = "Takeout/YouTube and YouTube Music/comments/"
             target_folder3 = "Takeout/YouTube and YouTube Music/subscriptions/"
 
@@ -366,12 +483,21 @@ if __name__=="__main__":
             full_path = f"{target_folder}{target_html_file}"
             full_path2=f"{target_folder2}{target_html_file2}"
             full_path3=f"{target_folder3}{target_html_file3}"
-
+            commentsFiles=[f for f in zip_ref.namelist() if 'comments' in f and '.csv' in f]
+            commentsdfs=[]
             if full_path2 in file_list:
-                with zip_ref.open(full_path2,'r') as csv_file:
-                    commentsDf=pd.read_csv(csv_file)
-                    commentsDf["Date"]=pd.to_datetime(commentsDf["Comment Create Timestamp"])
-                    st.session_state["comments"]=commentsDf
+                for commentdf in commentsFiles:
+                    with zip_ref.open(commentdf) as file:
+                        df=pd.read_csv(file)
+                        commentsdfs.append(df)
+                
+                st.session_state["comments"]=pd.concat(commentsdfs,ignore_index=True)
+                st.session_state["comments"]["Date"]=pd.to_datetime(st.session_state["comments"]["Comment Create Timestamp"])
+
+                # with zip_ref.open(full_path2,'r') as csv_file:
+                #     commentsDf=pd.read_csv(csv_file)
+                #     commentsDf["Date"]=pd.to_datetime(commentsDf["Comment Create Timestamp"])
+                #     st.session_state["comments"]=commentsDf
 
             # full_path = f"{target_folder}{target_html_file}"
             # full_path2=f"{target_folder2}{target_html_file2}"
@@ -385,7 +511,7 @@ if __name__=="__main__":
           
             # List of files in the folder, filtering CSVs that aren't the excluded file
             csv_files = [f for f in zip_ref.namelist() if 'playlists' in f and '.csv' in f and 'playlists.csv' not in f]
-            print(csv_files)
+            # print(csv_files)
             # Read and parse each CSV file
             dataframes = []
             for csv_file in csv_files:
@@ -415,18 +541,41 @@ if __name__=="__main__":
         #     print(combined_df)
             #print(full_path)
             if full_path in file_list:
+
                 # print("yo")
                 # Extract and read the HTML file
                 with zip_ref.open(full_path,'r') as html_file:
+                    df=pd.read_json(html_file)
+                    # print(df.head())
+                    # df.to_csv("json22csv1.csv",index=False)
                     # print("dec")
-                    html_content = html_file.read().decode("utf-8")
+                    # # Normalize the JSON structure
+                    # df = pd.json_normalize(html_file,
+                    #    meta=['header', 'title', 'titleUrl', 'time', 'products', 'activityControls'],
+                    #    errors='ignore')
+                    # df.to_csv("josncsv.csv",index=False)
+
+# # Handle entries that do not have "subtitles"
+#                     df_no_subtitles = pd.json_normalize(
+#     [entry for entry in html_file if 'subtitles' not in entry],
+#     sep='_'
+# )
+
+# # Combine both into one DataFrame
+#                     final_df = pd.concat([df, df_no_subtitles], ignore_index=True, sort=False)
+#                     final_df.to_csv("json2csv2.csv",index=False)
+# # Display
+# print(final_df.head())
+                    # html_content = html_file.read().decode("utf-8")
 
                 # df=pd.read_html(html_content)
 
                 # Parse with BeautifulSoup
                 # print("got")
                 # print(len(df))
-                videoDates,videoDurations,videoKeys,missedVideos,postsLiked,tot,titles,channels,numAds,repeats,repeatChannel,history=parse_html_with_lxml(html_content)
+                    # df=pd.read_json()
+                parsedJson=parse_json_with_pd(df)  
+                # videoDates,videoDurations,videoKeys,missedVideos,postsLiked,tot,titles,channels,numAds,repeats,repeatChannel,history=parse_html_with_lxml(html_content)
                 # st.session_state["vidFrame"]["WatchDate"]=videoDates
                 # st.session_state["vidFrame"]["VideoKey"]=videoKeys
                 # st.session_state["vidFrame"]["VideoTitle"]=titles
@@ -477,12 +626,12 @@ if __name__=="__main__":
 
                 #inc=100/tot
                 # import numpy as np
-                inc = np.linspace(0,1,tot)
+                # inc = np.linspace(0,1,tot)
                 #inc =list(range(0,tot))
                 #st.text(fr"{len(inc)}")
                 # global mBar
                 # print(inc)
-
+                history=parsedJson
 # Example usage:
                 # video_ids = ["VIDEO_ID_1", "VIDEO_ID_2", ..., "VIDEO_ID_30000"]  # Replace with actual video IDs
                 if doExperimental==True:
@@ -495,6 +644,7 @@ if __name__=="__main__":
                 # Print a sample result
                 # print(list(videoDurations.keys())[:10]) 
                 # print(list(videoKeys)[:10]) 
+                # print(videoDurations)
                 # st.session_state["vidFrame"]["Duration"]=list(videoDurations.values())
                 st.session_state["durs"]=videoDurations
 
@@ -509,11 +659,13 @@ if __name__=="__main__":
                 else:
                     history["durs"]=[0]*len(history)
                     history['Duration']=history["durs"]
-                history['Date']=pd.to_datetime(history["Date"]).dt.date
+                history['Date']=pd.to_datetime(history["time"],format='ISO8601').dt.date
+                # print(history['Date'])
                 h1Count=len(history)
 
                 history=history[history["Duration"]<90000]
                 h2Count=len(history)
+                history.to_csv("yo.csv",index=False)
                 st.session_state.history=history
                 st.session_state.collected=True
     if st.session_state.collected==True:
@@ -552,6 +704,8 @@ if __name__=="__main__":
 # top ads watched 
         df = st.session_state.history[(st.session_state.history["Date"] >= pd.to_datetime(start_date).date()) & (st.session_state.history["Date"] <= pd.to_datetime(end_date).date())]
         df=df[df['isAd']==True]
+        print(df.head())
+        df.to_csv("adscsv.csv",index=False)
         video_counts = (
     df.groupby(["Key", "Title"])
     .size()
@@ -852,6 +1006,28 @@ if __name__=="__main__":
             watch_counts = df.groupby(['year']).size().reset_index(name='count')
             st.bar_chart(watch_counts.set_index('year'),color="#FF1988")
         # btn(username="robertmundo", floating=False, width=100)\
+        df = st.session_state.history[(st.session_state.history["Date"] >= pd.to_datetime(start_date).date()) & (st.session_state.history["Date"] <= pd.to_datetime(end_date).date())]
+        
+        st.subheader("Chat with your Data!")
+        st.badge("AI",icon='🤖',color="violet",width='stretch')
+        
+        agent=createDocumentAgent(df)
+        # agent = create_pandas_dataframe_agent(llm, df, allow_dangerous_code=True,verbose=False)
+
+        user_input = st.text_input("Ask About Your Watch History",placeholder="Enter question")
+
+        if user_input:
+            with st.spinner("Thinking..."):
+                try:
+                    response = agent.run(user_input)
+                    st.session_state.chat_history.append(("You", user_input))
+                    st.session_state.chat_history.append(("WatchBot", response))
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
+        # Display chat history
+        for sender, message in st.session_state.chat_history:
+            st.markdown(f"**{sender}:** {message}")
 
     footer="""<style>
 a:link , a:visited{
