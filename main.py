@@ -3,12 +3,12 @@ import multiprocessing
 import streamlit as st
 import sqlite3
 import requests
+import numpy    
 import isodate
 import concurrent.futures
 from typing import List,Tuple
 import pandas as pd
 import ast
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 import streamlit_shadcn_ui as ui
@@ -17,7 +17,10 @@ import zipfile
 from lxml import etree
 import os
 from langchain_experimental.agents import create_pandas_dataframe_agent
-from langchain.chat_models import ChatOpenAI
+# from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
+from wordcloud import WordCloud
+import io
 # set in .sreamlit/secrets.toml
 # st.set_page_config(layout="wide")
 API_KEY=st.secrets.get("ytv3_key","")  or os.getenv("ytv3_key")
@@ -431,7 +434,7 @@ if __name__=="__main__":
 
     # logo image
 
-    st.image("static/yta.svg")
+    st.image("yta.svg")
     # link to tutorial
     # ui.link_button(text="How to Use", url="https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing", key="link_btn")
 
@@ -441,8 +444,8 @@ if __name__=="__main__":
     st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
 
-    # uploaded_file = st.file_uploader("Upload your takeout .zip file", type=["zip"])
-    uploaded_file=TEMP_ZIP_PATH = 'shared_data/uploaded.zip'  # Streamlit will read this
+    uploaded_file = st.file_uploader("Upload your takeout .zip file", type=["zip"])
+    # uploaded_file=TEMP_ZIP_PATH = 'shared_data/uploaded.zip'  # Streamlit will read this
 
     doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
 
@@ -467,9 +470,9 @@ if __name__=="__main__":
             st.session_state.chat_history = []
 
         # Read the uploaded file into a BytesIO buffer
-        with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+        # with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
 
-        # with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
+        with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
             # List all files in the ZIP
             file_list = zip_ref.namelist()
             #print(file_list)
@@ -533,7 +536,7 @@ if __name__=="__main__":
                 good=True
             except:
                 # st.rerun()
-                st.error("Error!: Incorrect file uploaded to tool. See bottom of document from the 'How To' Button above for what your file should contain! ")
+                st.error("Error!: Incorrect file uploaded to tool. See the 'How To Use' Button above for what your file should contain! ")
                 # st.rerun()
                 good=False
             # if combined_df:
@@ -674,6 +677,8 @@ if __name__=="__main__":
                 # history.to_csv("yo.csv",index=False)
                 st.session_state.history=history
                 st.session_state.collected=True
+            else:
+                st.error("No JSON found in zip file, pelase ensure json format is selected for watch history in the Google Takeout export options.")
     if st.session_state.collected==True:
         tabControl=ui.tabs(["Watch History","Comments","Subsctripions & Playlists","AI"])
         view_mode = st.sidebar.radio("Group videos watched by:", ["Month", "Year"])
