@@ -1082,7 +1082,7 @@ if __name__=="__main__":
             with st.container(border=True):
 
                 st.subheader("Chat with your Data!")
-                st.badge("AI",icon='🤖',color="violet",width='stretch')
+                # st.badge("AI",icon='🤖',color="violet",width='stretch')
                 
                 agent=createDocumentAgent(df)
                 # agent = create_pandas_dataframe_agent(llm, df, allow_dangerous_code=True,verbose=False)
