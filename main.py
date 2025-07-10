@@ -5,6 +5,7 @@ import sqlite3
 import requests
 import numpy    
 import isodate
+import tabulate
 import concurrent.futures
 from typing import List,Tuple
 import pandas as pd
@@ -12,6 +13,7 @@ import ast
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 import streamlit_shadcn_ui as ui
+import openai
 from datetime import datetime
 import zipfile
 from lxml import etree
@@ -439,12 +441,12 @@ if __name__=="__main__":
     # ui.link_button(text="How to Use", url="https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing", key="link_btn")
 
 
-    # st.link_button("How to Use","https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing",icon='❓')
+    st.link_button("How to Use","https://youtu.be/YzisdRsIcRc",icon='❓')
     st.markdown("---")
     st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
 
-    uploaded_file = st.file_uploader("Upload your takeout .zip file", type=["zip"])
+    uploaded_file = st.file_uploader("Upload File From Google Takeout", type=["zip"])
     # uploaded_file=TEMP_ZIP_PATH = 'shared_data/uploaded.zip'  # Streamlit will read this
 
     doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
