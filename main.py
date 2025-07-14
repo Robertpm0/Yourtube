@@ -440,8 +440,15 @@ if __name__=="__main__":
     # link to tutorial
     # ui.link_button(text="How to Use", url="https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing", key="link_btn")
 
+    st.markdown('''### Step 1 — Get Your YouTube Data File  
+Get your YouTube data file [here](https://takeout.google.com/) —  [Watch Tutorial](https://youtu.be/PWbsHPSMCKw)
 
-    st.link_button("How to Get your Youtube Data File","https://youtu.be/PWbsHPSMCKw",icon='❓')
+---
+
+### Step 2 — Upload the File to This Tool  
+Once you've downloaded your data, upload the file using the uploader below.
+''')
+    # st.link_button("How to Get your Youtube Data File","https://youtu.be/PWbsHPSMCKw",icon='❓')
     st.markdown("---")
     # st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
