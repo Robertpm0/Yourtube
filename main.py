@@ -670,6 +670,7 @@ Once you've downloaded your data, upload the file using the uploader below to be
                 # print(videoDurations)
                 # st.session_state["vidFrame"]["Duration"]=list(videoDurations.values())
                 st.session_state["durs"]=videoDurations
+                st.session_state.sp.progress(90,"Generating Charts and Stats")
 
                 # with concurrent.futures.ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
                 #     #mBar=st.progress(0.0,"")
@@ -692,7 +693,7 @@ Once you've downloaded your data, upload the file using the uploader below to be
                 # history.to_csv("yo.csv",index=False)
                 st.session_state.history=history
                 st.session_state.collected=True
-                st.session_state.sp.progress(100,"Generating Charts and Stats")
+                st.session_state.sp.empty()
 
             else:
                 st.error("No JSON found in zip file, pelase ensure json format is selected for watch history in the Google Takeout export options.")
@@ -717,7 +718,6 @@ Once you've downloaded your data, upload the file using the uploader below to be
         # st.session_state.history["Date"]=pd.to_datetime(history["Date"]).dt.date
         # st.session_state.sp.progress(100,"Creating UI")
         st.toast("Loading UI")
-        st.session_state.sp.empty()
         firstRow=st.columns(2)
         if tabControl=="Watch History":
             st. markdown("---")
