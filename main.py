@@ -441,12 +441,12 @@ if __name__=="__main__":
     # ui.link_button(text="How to Use", url="https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing", key="link_btn")
 
     st.markdown('''### Step 1 — Get Your YouTube Data File  
-Get your YouTube data file [here](https://takeout.google.com/) — Reccommended to [Watch our Tutorial](https://youtu.be/PWbsHPSMCKw) First
+Get your YouTube data file [here](https://takeout.google.com/). Please [Watch our Tutorial](https://youtu.be/PWbsHPSMCKw) first.
 
 ---
 
 ### Step 2 — Upload the File to This Tool  
-Once you've downloaded your data, upload the file using the uploader below.
+Once you've downloaded your data, upload the file using the uploader below to begin interacting with your data.
 ''')
     # st.link_button("How to Get your Youtube Data File","https://youtu.be/PWbsHPSMCKw",icon='❓')
     st.markdown("---")
