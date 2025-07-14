@@ -453,6 +453,7 @@ if __name__=="__main__":
 
     # st.session_state["f"]=uploaded_file
     # doExperimental=st.checkbox("Get Watchtime (Experimental)")
+    sp=st.progress()
     if st.button("Visualize",icon='👀'):
         st.session_state["collected"]=False
         st.session_state["vidFrame"]=pd.DataFrame()
@@ -473,7 +474,7 @@ if __name__=="__main__":
 
         # Read the uploaded file into a BytesIO buffer
         # with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
-        sp=st.progress(0,"Starting up Processing")
+        sp.progress(0,"Starting up Processing")
         with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
             # List all files in the ZIP
             sp.progress(10,"Reading Data Files")
