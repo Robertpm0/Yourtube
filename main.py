@@ -453,7 +453,8 @@ if __name__=="__main__":
 
     # st.session_state["f"]=uploaded_file
     # doExperimental=st.checkbox("Get Watchtime (Experimental)")
-    sp=st.progress()
+    sp=st.progress(0)
+    sp.empty()
     if st.button("Visualize",icon='👀'):
         st.session_state["collected"]=False
         st.session_state["vidFrame"]=pd.DataFrame()
