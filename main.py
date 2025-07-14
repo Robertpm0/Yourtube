@@ -692,10 +692,11 @@ Once you've downloaded your data, upload the file using the uploader below to be
                 # history.to_csv("yo.csv",index=False)
                 st.session_state.history=history
                 st.session_state.collected=True
+                st.session_state.sp.progress(100,"Generating Charts and Stats")
+
             else:
                 st.error("No JSON found in zip file, pelase ensure json format is selected for watch history in the Google Takeout export options.")
     if st.session_state.collected==True:
-        st.session_state.sp.progress(90,"Generating Charts and Stats")
 
         tabControl=ui.tabs(["Watch History","Comments","Subsctripions & Playlists","AI"],default_value="Watch History")
         view_mode = st.sidebar.radio("Group videos watched by:", ["Month", "Year"])
@@ -714,7 +715,8 @@ Once you've downloaded your data, upload the file using the uploader below to be
         )
         # st.session_state["vidFrame"]["WatchDate"]=pd.to_datetime(st.session_state["vidFrame"]["WatchDate"]).dt.date
         # st.session_state.history["Date"]=pd.to_datetime(history["Date"]).dt.date
-        st.session_state.sp.progress(100,"Creating UI")
+        # st.session_state.sp.progress(100,"Creating UI")
+        st.toast("Loading UI")
         st.session_state.sp.empty()
         firstRow=st.columns(2)
         if tabControl=="Watch History":
