@@ -453,7 +453,7 @@ if __name__=="__main__":
 
     # st.session_state["f"]=uploaded_file
     # doExperimental=st.checkbox("Get Watchtime (Experimental)")
-    if st.button("visualise",icon='👀'):
+    if st.button("Visualize",icon='👀'):
         st.session_state["collected"]=False
         st.session_state["vidFrame"]=pd.DataFrame()
         st.session_state["vidFrame2"]=pd.DataFrame()
@@ -473,9 +473,10 @@ if __name__=="__main__":
 
         # Read the uploaded file into a BytesIO buffer
         # with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
-
+        sp=st.progress(0,"Starting up Processing")
         with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
             # List all files in the ZIP
+            sp.progress(10,"Reading Data Files")
             file_list = zip_ref.namelist()
             #print(file_list)
             # Specify the folder and the HTML file to extract
@@ -585,7 +586,9 @@ if __name__=="__main__":
                 # print("got")
                 # print(len(df))
                     # df=pd.read_json()
+                
                 parsedJson=parse_json_with_pd(df)  
+                sp.progress(45,"Preparing  Watch History")
                 # videoDates,videoDurations,videoKeys,missedVideos,postsLiked,tot,titles,channels,numAds,repeats,repeatChannel,history=parse_html_with_lxml(html_content)
                 # st.session_state["vidFrame"]["WatchDate"]=videoDates
                 # st.session_state["vidFrame"]["VideoKey"]=videoKeys
@@ -646,7 +649,7 @@ if __name__=="__main__":
 # Example usage:
                 # video_ids = ["VIDEO_ID_1", "VIDEO_ID_2", ..., "VIDEO_ID_30000"]  # Replace with actual video IDs
                 if doExperimental==True:
-
+                    sp.progress(75,"Getting Video Durations (this may take several minutes)")
                     videoDurations,mv = get_video_durations(history["Key"])
                 else:
                     videoDurations=[0]*len(history)
@@ -664,7 +667,8 @@ if __name__=="__main__":
                 #     # st.session_state["progressBar"]=st.progress(0.0,"Video Duration Collection Process!")
                 #     videoDurations,badVids = list(zip(executor.map(getYTVideoDuration, videoKeys,inc,chunksize=1000)))
                 # #print()
-                # st.session_state["vidFrame2"]=st.session_state["vidFrame"].copy()
+                # st.session_state["vidFrame2"]=st.session_state["vidFrame"].copy()\
+
                 if doExperimental==True:
                     history['Duration'] = history['Key'].map(videoDurations).fillna(0).astype(int)
                 else:
@@ -681,7 +685,9 @@ if __name__=="__main__":
                 st.session_state.collected=True
             else:
                 st.error("No JSON found in zip file, pelase ensure json format is selected for watch history in the Google Takeout export options.")
+    sp.progress(90,"Generating Charts and Stats")
     if st.session_state.collected==True:
+        
         tabControl=ui.tabs(["Watch History","Comments","Subsctripions & Playlists","AI"],default_value="Watch History")
         view_mode = st.sidebar.radio("Group videos watched by:", ["Month", "Year"])
         st.sidebar.subheader("Adjustments")
@@ -699,6 +705,8 @@ if __name__=="__main__":
         )
         # st.session_state["vidFrame"]["WatchDate"]=pd.to_datetime(st.session_state["vidFrame"]["WatchDate"]).dt.date
         # st.session_state.history["Date"]=pd.to_datetime(history["Date"]).dt.date
+        sp.progress(100,"Creating UI")
+        sp.empty()
         firstRow=st.columns(2)
         if tabControl=="Watch History":
             st. markdown("---")
