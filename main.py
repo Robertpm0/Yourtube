@@ -443,7 +443,7 @@ if __name__=="__main__":
 
     st.link_button("How to Use","https://youtu.be/PWbsHPSMCKw",icon='❓')
     st.markdown("---")
-    st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
+    # st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
 
     uploaded_file = st.file_uploader("Upload File From Google Takeout", type=["zip"])
