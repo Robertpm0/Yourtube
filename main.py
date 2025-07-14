@@ -441,7 +441,7 @@ if __name__=="__main__":
     # ui.link_button(text="How to Use", url="https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing", key="link_btn")
 
 
-    st.link_button("How to Use","https://youtu.be/PWbsHPSMCKw",icon='❓')
+    st.link_button("How to Get your Youtube Data File","https://youtu.be/PWbsHPSMCKw",icon='❓')
     st.markdown("---")
     # st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
