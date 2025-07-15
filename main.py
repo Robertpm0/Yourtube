@@ -706,14 +706,16 @@ Once you've downloaded your data, upload the file using the uploader below to be
         
         min_date=st.session_state.history["Date"].min()
         max_date=st.session_state.history["Date"].max()
-
-        start_date, end_date = st.sidebar.date_input(
+        try:
+            start_date, end_date = st.sidebar.date_input(
 
             "Select date range:",
             [min_date, max_date],
             min_value=min_date,
             max_value=max_date
         )
+        except:
+            pass
         # st.session_state["vidFrame"]["WatchDate"]=pd.to_datetime(st.session_state["vidFrame"]["WatchDate"]).dt.date
         # st.session_state.history["Date"]=pd.to_datetime(history["Date"]).dt.date
         # st.session_state.sp.progress(100,"Creating UI")
