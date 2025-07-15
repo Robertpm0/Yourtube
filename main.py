@@ -717,7 +717,7 @@ Once you've downloaded your data, upload the file using the uploader below to be
         max_value=max_date
     )
         except:
-            pass
+            start_date,end_date=None,None
 
         # st.session_state["vidFrame"]["WatchDate"]=pd.to_datetime(st.session_state["vidFrame"]["WatchDate"]).dt.date
         # st.session_state.history["Date"]=pd.to_datetime(history["Date"]).dt.date
