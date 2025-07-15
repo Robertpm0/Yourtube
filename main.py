@@ -436,7 +436,7 @@ if __name__=="__main__":
 
     # logo image
 
-    st.image("static/yta.svg")
+    st.image("yta.svg")
     # link to tutorial
     # ui.link_button(text="How to Use", url="https://docs.google.com/document/d/13R3wwBrTg773rhEE1MFx6w3H1lg4gg-GpiKx72tvrLg/edit?usp=sharing", key="link_btn")
 
