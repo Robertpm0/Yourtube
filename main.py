@@ -702,8 +702,9 @@ Once you've downloaded your data, upload the file using the uploader below to be
     if st.session_state.collected==True:
 
         tabControl=ui.tabs(["Watch History","Comments","Subsctripions & Playlists","AI"],default_value="Watch History")
-        view_mode = st.sidebar.radio("Group videos watched by:", ["Month", "Year"])
         st.sidebar.subheader("Adjustments")
+        view_mode = st.sidebar.radio("Group videos watched by:", ["Month", "Year"])
+
         top_n = st.sidebar.slider("Select number of top values to display:", min_value=1, max_value=20, value=10)
         
         min_date=st.session_state.history["Date"].min()
