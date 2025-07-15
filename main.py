@@ -456,7 +456,7 @@ Once you've downloaded your data, upload the file using the uploader below to be
     uploaded_file = st.file_uploader("Upload File From Google Takeout", type=["zip"])
     # uploaded_file=TEMP_ZIP_PATH = 'shared_data/uploaded.zip'  # Streamlit will read this
 
-    doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
+    # doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
 
     # st.session_state["f"]=uploaded_file
     # doExperimental=st.checkbox("Get Watchtime (Experimental)")
