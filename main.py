@@ -412,7 +412,7 @@ def createDocumentAgent(df):
 
 
 if __name__=="__main__":
-    multiprocessing.freeze_support()
+    # multiprocessing.freeze_support()
     # co
     # initialize globally used datavars
     if 'collected' not in st.session_state:
