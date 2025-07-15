@@ -453,8 +453,8 @@ Once you've downloaded your data, upload the file using the uploader below to be
     # st.info("This tool DOES NOT collect your data. Feel free to review our open source codebase to verify our claims.")
     # input data zip file
 
-    # uploaded_file = st.file_uploader("Upload File From Google Takeout", type=["zip"])
-    uploaded_file=TEMP_ZIP_PATH = 'shared_data/uploaded.zip'  # Streamlit will read this
+    uploaded_file = st.file_uploader("Upload File From Google Takeout", type=["zip"])
+    # uploaded_file=TEMP_ZIP_PATH = 'shared_data/uploaded.zip'  # Streamlit will read this
 
     doExperimental=ui.checkbox(label="Get Watchtime (Experimental)")
 
@@ -483,8 +483,8 @@ Once you've downloaded your data, upload the file using the uploader below to be
         # with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
         st.session_state["sp"]=st.progress(0,"Starting up Processing")
         # st.session_state.sp=st.progress(0,"Starting up Processing")
-        # with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
-        with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
+        with zipfile.ZipFile(io.BytesIO(uploaded_file.read()), 'r') as zip_ref:
+        # with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
 
             # List all files in the ZIP
             st.session_state.sp.progress(10,"Reading Data Files")
